@@ -19,7 +19,9 @@ resource "aws_instance" "public" {
   instance_type               = "t2.micro"
   key_name                    = "pawan"
   subnet_id                   = aws_subnet.public[0].id
-  vpc_security_group_ids      = [aws_security_group.allow_ssh.id]
+  vpc_security_group_ids      = [aws_security_group.allow_ssh_httpd_on_public.id]
+
+  user_data = file("user_data.sh")
 
   tags = {
     Name = "${var.env_code}-public"
@@ -27,7 +29,7 @@ resource "aws_instance" "public" {
 }
 
 
-resource "aws_security_group" "allow_ssh" {
+resource "aws_security_group" "allow_ssh_httpd_on_public" {
   name        = "allow_ssh"
   description = "Allow ssh inbound traffic"
   vpc_id      = aws_vpc.main.id
@@ -38,6 +40,14 @@ resource "aws_security_group" "allow_ssh" {
     to_port     = 22
     protocol    = "tcp"
     cidr_blocks = ["${var.my_public_ip}/32"]
+  }
+
+  ingress {
+    description = "http acess from everywhere"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
@@ -60,6 +70,8 @@ resource "aws_instance" "private" {
   subnet_id                   = aws_subnet.private[0].id
   vpc_security_group_ids      = [aws_security_group.allow_ssh_from_vpc.id]
 
+  user_data = file("user_data.sh")
+
   tags = {
     Name = "${var.env_code}-private"
   }
@@ -76,6 +88,14 @@ resource "aws_security_group" "allow_ssh_from_vpc" {
     to_port     = 22
     protocol    = "tcp"
     cidr_blocks = [var.cidr_block]
+  }
+
+  ingress {
+    description = "http acess from vpc"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["${var.cidr_block}"]
   }
 
   egress {
