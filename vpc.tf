@@ -10,13 +10,6 @@ resource "aws_vpc" "main" {
   }
 }
 
-output "count1" {
-  value = length(var.public_cidr)
-}
-
-output "count2" {
-  value = length(var.private_cidr)
-}
 
 resource "aws_subnet" "public" {
   count             = length(var.public_cidr)
