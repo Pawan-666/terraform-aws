@@ -70,8 +70,6 @@ resource "aws_instance" "private" {
   subnet_id                   = aws_subnet.private[0].id
   vpc_security_group_ids      = [aws_security_group.allow_ssh_from_vpc.id]
 
-  user_data = file("user_data.sh")
-
   tags = {
     Name = "${var.env_code}-private"
   }
