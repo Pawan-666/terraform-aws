@@ -1,5 +1,20 @@
+data "aws_ami" "amazonlinux" {
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-kernel-*"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+}
+
 resource "aws_instance" "public" {
-  ami                         = "ami-052f483c20fa1351a"
+  ami                         = data.aws_ami.amazonlinux.id
   associate_public_ip_address = true
   instance_type               = "t2.micro"
   key_name                    = "pawan"
@@ -38,7 +53,7 @@ resource "aws_security_group" "allow_ssh" {
 }
 
 resource "aws_instance" "private" {
-  ami                         = "ami-052f483c20fa1351a"
+  ami                         = data.aws_ami.amazonlinux.id
   associate_public_ip_address = false
   instance_type               = "t2.micro"
   key_name                    = "pawan"
